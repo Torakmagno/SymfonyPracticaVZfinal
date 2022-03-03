@@ -19,7 +19,7 @@ use App\Entity\Articulo;
 class ArticuloController extends AbstractController
 {
     /**
-     * @Route("/")
+     * @Route("/" , name="/")
      */
     public function paginaInicio(ManagerRegistry $doctrine): Response {
         $repository = $doctrine->getRepository(Articulo::class);
@@ -49,7 +49,7 @@ class ArticuloController extends AbstractController
 
 
     /**
-     * @Route("crear")
+     * @Route("crear", name="crear")
      */
     public function new(Request $request): Response
     {
