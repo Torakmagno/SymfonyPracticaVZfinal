@@ -13,8 +13,10 @@
         <li class="list-group-item d-flex justify-content-between align-items-start">
             <div class="ms-2 me-auto">
                 <div class="fw-bold">{{ articulo.titulo }}</div>
-                {{articulo.resumen}}
+                
             </div>
+            <a class="bg-success btn navbar-brand bg-primary text-light" role="button" aria-pressed="true" href="/editar/{{ articulo.id }}">edit</a>
+            <a class="bg-success btn navbar-brand bg-primary text-light" role="button" aria-pressed="true" href="/eliminar/{{ articulo.id }}">eliminar</a>
             <span class="badge bg-primary rounded-pill">{{ articulo.fecha | date}}</span>
         </li>
     </a>

@@ -14,6 +14,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 
 use App\Entity\Articulo; 
+use App\form\ArticuloType;
 
 
 class ArticuloController extends AbstractController
@@ -51,29 +52,77 @@ class ArticuloController extends AbstractController
     /**
      * @Route("crear", name="crear")
      */
-    public function new(Request $request): Response
+    public function new(Request $request,ManagerRegistry $doctrine): Response
     {
+        
         // creates a task object and initializes some data for this example
         $articulo = new Articulo();
+
+        $form = $this->createForm(ArticuloType::class,$articulo);
+        $entityManager=$doctrine->getManager();
+
+            $form->handleRequest($request);
+            if ($form->isSubmitted() && $form->isValid()) {
+                $articulo = $form->getData();
+
+                $entityManager->persist($articulo);
+                $entityManager->flush();
+
+             return $this->redirectToRoute('/', [
+                'form' => $form]);
+            }
         
-
-        $form = $this->createFormBuilder($articulo)
-            ->add('id', NumberType::class)
-            ->add('titulo', TextType::class)
-            ->add('fecha', DateType::class)
-            ->add('texto', TextType::class)
-            ->add('comentario', TextType::class)
-            ->add('resumen', TextType::class)
-            ->add('categoria', TextType::class)
-            ->add('url', TextType::class)
-            ->add('medio', TextType::class)
-            ->add('save', SubmitType::class, ['label' => 'Create Task'])
-            ->getForm();
-
-
-            return $this->renderForm('form.html.twig', [
-                'form' => $form,
-            ]);
+            return $this->renderForm('form.html.twig', ['form' => $form]);
+           
     }
 
-}
+
+    /**
+     * @Route("editar/{numero}", name="editar")
+     */
+    public function edit(Request $request,ManagerRegistry $doctrine,int $numero): Response
+    {
+        
+        $articuloEncontrado = $doctrine->getRepository(Articulo::class)->find($numero);
+        $entityManager =$doctrine->getManager();
+
+        if (!$articuloEncontrado) {
+            throw $this->createNotFoundException('No existe ningun articulo con el id:  ' . $numero);
+        } 
+        
+        $form = $this->createForm(ArticuloType::class , $articuloEncontrado);
+        $entityManager=$doctrine->getManager();
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $articuloEcontrado=$form->getData();
+            $entityManager->persist($articuloEcontrado);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('/');
+        }    
+            return $this->renderform('editar.html.twig', ['form' => $form]);    
+    
+       
+    }
+
+
+    /**
+     * @Route("eliminar/{numero}", name="eliminar")
+     */
+    public function eliminar(Request $request,ManagerRegistry $doctrine, int $numero) {
+
+  
+        $articuloBorrado = $doctrine->getRepository(Articulo::class)->find($numero);
+        $entityManager =$doctrine->getManager();
+
+        if (!$articuloBorrado) {
+            throw $this->createNotFoundException('No existe ningun articulo con el id:  ' . $numero);
+        } 
+            $entityManager->remove($articuloBorrado);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('/');
+        }    
+    
+    }
